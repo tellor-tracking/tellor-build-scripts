@@ -6,7 +6,7 @@ const rimraf = require('rimraf');
 const FINAL_DIR = `${__dirname}/packages`;
 const TEMP_DIR = `${__dirname}/temp`;
 
-const PACKAGE_VERSION = getNextPackageVersion();
+const PACKAGE_NAME = `tellor-${getNextPackageVersion()}`;
 
 const API_PROJECT = 'tellor-web-server';
 const UI_PROJECT = 'tellor-ui';
@@ -14,11 +14,11 @@ const getGitRepoAddr = (name) => `https://github.com/tellor-tracking/${name}.git
 
 function cloneRepo(repoUrl, dirName = '') {
     console.log(`Cloning ${repoUrl}`);
-    return shellExec(`git clone ${repoUrl} ${TEMP_DIR}/${dirName}`, `Successfully cloned ${repoUrl} into ${dirName}`);    
+    return shellExec(`git clone ${repoUrl} ${TEMP_DIR}/${dirName}`, `Successfully cloned ${repoUrl} into ${dirName}`);
 }
 
 function installPackages(dirName, prodOnly = true) {
-    console.log(`Installing packages in  ${dirName}`);    
+    console.log(`Installing packages in  ${dirName}`);
     return shellExec(`(cd ${TEMP_DIR}/${dirName} ; yarn install ${prodOnly ? '--production' : ''})`, `Successfully installed packages in ${dirName}`);
 }
 
@@ -26,7 +26,7 @@ function getNextPackageVersion() {
     return fs.readdirSync(FINAL_DIR).reduce((version, fileName) => {
         const v = parseFloat(fileName.split('-')[1])
         return version > v ? version : v;
-    }, 0);
+    }, 0) + 1;
 };
 
 function buildUI() {
@@ -34,9 +34,17 @@ function buildUI() {
     return shellExec(`(cd ${TEMP_DIR}/${UI_PROJECT} ; yarn run build-dist)`, `Successfully buil ${UI_PROJECT}`);
 }
 
-function copyUIIntoServerDir() {
-    shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist`, `${TEMP_DIR}/${API_PROJECT}/public/react`);
+function moveUIDistFilesIntoServerDir() {
+    shelljs.mkdir('-p', `${TEMP_DIR}/${API_PROJECT}/public/react`);
+    shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist/*`, `${TEMP_DIR}/${API_PROJECT}/public/react/`);
     console.log('Copied UI static files into API');
+    return Promise.resolve();
+}
+
+function copyEverythingIntoPackages() {
+    shelljs.mkdir('-p', `${FINAL_DIR}/${PACKAGE_NAME}`);    
+    shelljs.mv(`${TEMP_DIR}/${API_PROJECT}/*`, `${FINAL_DIR}/${PACKAGE_NAME}`);
+    console.log('Copied All files into packages/${PACKAGE_NAME}');
     return Promise.resolve();
 }
 
@@ -46,16 +54,16 @@ function cleanup() {
 
 function resolveIfNeeded(resolve, reject, successMsg = null) {
     return (code, stdout, stderr) => {
-            if (code !== 0) reject(new Error('Build failed' + stderr));
-            
-            successMsg && console.log(successMsg);
-            resolve({ code, stdout, stderr });
-        };
+        if (code !== 0) reject(new Error('Build failed' + stderr));
+        console.log(stderr);
+        successMsg && console.log(successMsg);
+        resolve({ code, stdout, stderr });
+    };
 }
 
 function shellExec(command, successMsg = null) {
     return new Promise((resolve, reject) => {
-        shelljs.exec(command, {silent: true}, resolveIfNeeded(resolve, reject, successMsg));
+        shelljs.exec(command, { silent: true }, resolveIfNeeded(resolve, reject, successMsg));
     });
 }
 
@@ -63,9 +71,10 @@ function shellExec(command, successMsg = null) {
 Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getGitRepoAddr(UI_PROJECT), UI_PROJECT)])
     .then(() => Promise.all([installPackages(API_PROJECT), installPackages(UI_PROJECT, false)]))
     .then(buildUI)
-    .then(copyUIIntoServerDir)
-    .catch(e => console.error(e));
-    // .then(cleanup);
+    .then(moveUIDistFilesIntoServerDir)
+    .then(copyEverythingIntoPackages)
+    .catch(e => console.error(e))
+    .then(cleanup);
 
 
 
