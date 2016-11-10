@@ -5,11 +5,10 @@ const rimraf = require('rimraf');
 
 const FINAL_DIR = `${__dirname}/packages`;
 const TEMP_DIR = `${__dirname}/temp`;
-
 const PACKAGE_NAME = `tellor-${getNextPackageVersion()}`;
-
 const API_PROJECT = 'tellor-web-server';
 const UI_PROJECT = 'tellor-ui';
+
 const getGitRepoAddr = (name) => `https://github.com/tellor-tracking/${name}.git`
 
 function cloneRepo(repoUrl, dirName = '') {
@@ -41,11 +40,20 @@ function moveUIDistFilesIntoServerDir() {
     return Promise.resolve();
 }
 
-function copyEverythingIntoPackages() {
-    shelljs.mkdir('-p', `${FINAL_DIR}/${PACKAGE_NAME}`);    
-    shelljs.mv(`${TEMP_DIR}/${API_PROJECT}/*`, `${FINAL_DIR}/${PACKAGE_NAME}`);
-    console.log('Copied All files into packages/${PACKAGE_NAME}');
+function copyInstallScriptIntoServerDir() {
+    shelljs.cp(`${__dirname}/scripts/install.sh`, `${TEMP_DIR}/${API_PROJECT}/`);
+    shelljs.chmod('755', `${TEMP_DIR}/${API_PROJECT}/install.sh`);
+    console.log('Copied install.sh into API');
     return Promise.resolve();
+}
+
+function createMakeselfFile() {
+    // we will create an sh file at /packages that is able to self-extract and run install.sh. 
+    // More at https://github.com/megastep/makeself
+
+    return shellExec(
+        `(cd ${FINAL_DIR} ; ${__dirname}/makeself/makeself.sh ${TEMP_DIR}/${API_PROJECT} ${PACKAGE_NAME}.sh "Tellor install script" ./install.sh)`,
+        'Successfully created makeself.sh');
 }
 
 function cleanup() {
@@ -72,7 +80,8 @@ Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getG
     .then(() => Promise.all([installPackages(API_PROJECT), installPackages(UI_PROJECT, false)]))
     .then(buildUI)
     .then(moveUIDistFilesIntoServerDir)
-    .then(copyEverythingIntoPackages)
+    .then(copyInstallScriptIntoServerDir)
+    .then(createMakeselfFile)
     .catch(e => console.error(e))
     .then(cleanup);
 
