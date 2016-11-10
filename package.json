@@ -1,0 +1,13 @@
+{
+  "name": "tracking-build-scripts",
+  "version": "1.0.0",
+  "description": "Scripts to build tellor deployment packages",
+  "main": "index.js",
+  "author": "Vytenis <vytenis.butkevicius@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "rimraf": "^2.5.4",
+    "shelljs": "^0.7.5"
+  }
+}
