@@ -35,7 +35,7 @@ function buildUI() {
 }
 
 function copyUIIntoServerDir() {
-    shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist`, `${TEMP_DIR}/${API_PROJECT}/static`);
+    shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist`, `${TEMP_DIR}/${API_PROJECT}/public/react`);
     console.log('Copied UI static files into API');
     return Promise.resolve();
 }

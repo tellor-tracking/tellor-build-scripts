@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Vytenis <vytenis.butkevicius@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  
   "dependencies": {
     "gulp": "^3.9.1",
     "rimraf": "^2.5.4",
