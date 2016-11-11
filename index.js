@@ -36,13 +36,14 @@ function buildUI() {
 function moveUIDistFilesIntoServerDir() {
     shelljs.mkdir('-p', `${TEMP_DIR}/${API_PROJECT}/public/react`);
     shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist/*`, `${TEMP_DIR}/${API_PROJECT}/public/react/`);
+    shelljs.rm('-rf',`${TEMP_DIR}/${UI_PROJECT}`);
     console.log('Copied UI static files into API');
     return Promise.resolve();
 }
 
-function copyInstallScriptIntoServerDir() {
-    shelljs.cp(`${__dirname}/scripts/install.sh`, `${TEMP_DIR}/${API_PROJECT}/`);
-    shelljs.chmod('755', `${TEMP_DIR}/${API_PROJECT}/install.sh`);
+function copyInstallScriptsIntoTempDir() {
+    shelljs.cp(`${__dirname}/scripts/*`, `${TEMP_DIR}/`);
+    shelljs.chmod('755', `${TEMP_DIR}/*`);
     console.log('Copied install.sh into API');
     return Promise.resolve();
 }
@@ -52,7 +53,7 @@ function createMakeselfFile() {
     // More at https://github.com/megastep/makeself
 
     return shellExec(
-        `(cd ${FINAL_DIR} ; ${__dirname}/makeself/makeself.sh ${TEMP_DIR}/${API_PROJECT} ${PACKAGE_NAME}.sh "Tellor install script" ./install.sh)`,
+        `(cd ${FINAL_DIR} ; ${__dirname}/makeself/makeself.sh ${TEMP_DIR} ${PACKAGE_NAME}.sh "Tellor install script" ./install.sh)`,
         'Successfully created makeself.sh');
 }
 
@@ -80,10 +81,10 @@ Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getG
     .then(() => Promise.all([installPackages(API_PROJECT), installPackages(UI_PROJECT, false)]))
     .then(buildUI)
     .then(moveUIDistFilesIntoServerDir)
-    .then(copyInstallScriptIntoServerDir)
+    .then(copyInstallScriptsIntoTempDir)
     .then(createMakeselfFile)
     .catch(e => console.error(e))
-    .then(cleanup);
+    // .then(cleanup);
 
 
 
