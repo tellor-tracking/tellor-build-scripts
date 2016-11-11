@@ -84,7 +84,7 @@ Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getG
     .then(copyInstallScriptsIntoTempDir)
     .then(createMakeselfFile)
     .catch(e => console.error(e))
-    // .then(cleanup);
+    .then(cleanup);
 
 
 
