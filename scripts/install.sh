@@ -2,12 +2,19 @@
 
 echo  "Starting setup";
 
-DIR="$( pwd )"
+CURRENT_DIR="$( pwd )"
+TARGET_DIR="/opt/tellor"
+FILE_NAME="$( ls | grep tellor | tail -1)"
+
+if [ -z "$FILE_NAME" ];then
+    echo "Can't find fist file"
+    exit 1;
+fi
 
 if [ -f /etc/lsb-release ]; then
-    bash $DIR/install_ubuntu.sh
+    (. ./install_centos.sh)
 elif [ -f /etc/redhat-release ]; then
-    bash $DIR/install_centos.sh
+   (. ./install_centos.sh)
 fi
 
 if hash yum 2>/dev/null; then
@@ -15,8 +22,3 @@ if hash yum 2>/dev/null; then
 fi
 
 hash mongo 2>/dev/null || { echo >&2 "I require foo but it's not installed.  Aborting."; exit 1; }
-
-
-if ! which nginx > /dev/null 2>&1; then
-    echo "Nginx not installed"
-fi
