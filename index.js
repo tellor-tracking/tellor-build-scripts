@@ -41,10 +41,20 @@ function moveUIDistFilesIntoServerDir() {
     return Promise.resolve();
 }
 
+function renameApiDir() {
+    shelljs.mv(`${TEMP_DIR}/${API_PROJECT}`, `${TEMP_DIR}/${PACKAGE_NAME}`);    
+}
+
 function copyInstallScriptsIntoTempDir() {
     shelljs.cp(`${__dirname}/scripts/*`, `${TEMP_DIR}/`);
     shelljs.chmod('755', `${TEMP_DIR}/*`);
-    console.log('Copied install.sh into API');
+    console.log('Copied scripts');
+    return Promise.resolve();
+}
+
+function copyConfigsIntoTempDir() {
+    shelljs.cp(`${__dirname}/configs/*`, `${TEMP_DIR}/configs/`);
+    console.log('Copied configs');
     return Promise.resolve();
 }
 
@@ -82,6 +92,8 @@ Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getG
     .then(buildUI)
     .then(moveUIDistFilesIntoServerDir)
     .then(copyInstallScriptsIntoTempDir)
+    .then(copyConfigsIntoTempDir)
+    .then(renameApiDir)
     .then(createMakeselfFile)
     .catch(e => console.error(e))
     .then(cleanup);
