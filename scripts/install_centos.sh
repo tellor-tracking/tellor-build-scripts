@@ -47,4 +47,4 @@ sudo yum -y install mongodb-org
 systemctl restart mongod
 
 # start server
- node $TARGET_DIR/$FILE_NAME/run.js
+pm2 start $TARGET_DIR/$FILE_NAME/pm2.config.js
