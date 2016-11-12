@@ -23,7 +23,7 @@ cp $CURRENT_DIR/configs/nginx.conf /etc/nginx/nginx.conf
 #TODO
 
 #start nginx
-systemctl nginx restart
+systemctl restart nginx
 
 
 # install mongodb if needed
