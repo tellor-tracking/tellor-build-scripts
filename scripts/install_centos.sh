@@ -44,4 +44,4 @@ sudo yum -y install mongodb-org
 systemctl restart mongod
 
 # start server
-# /home/vytenis/.nvm/versions/node/v6.6.0/bin/node $TARGET_DIR/$FILE_NAME/run.js #TODO replace with node
+ node $TARGET_DIR/$FILE_NAME/run.js

@@ -8,14 +8,12 @@ FILE_NAME="$( ls | grep tellor | tail -1)"
 LOGS_DIR="/var/log/tellor"
 
 if [ -z "$FILE_NAME" ];then
-    echo "Can't find fist file"
+    echo "Can't find file"
     exit 1;
 fi
+
 # mv server dir
 mkdir -p $TARGET_DIR/ && mv $CURRENT_DIR/$FILE_NAME $TARGET_DIR/
-
-
-exit 1
 
 # create user
 useradd -r -U -M -d $TARGET_DIR  -s /bin/false tellor
