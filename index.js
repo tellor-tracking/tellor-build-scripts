@@ -53,6 +53,7 @@ function copyInstallScriptsIntoTempDir() {
 }
 
 function copyConfigsIntoTempDir() {
+    shelljs.mkdir('-p', `${TEMP_DIR}/configs`);    
     shelljs.cp(`${__dirname}/configs/*`, `${TEMP_DIR}/configs/`);
     console.log('Copied configs');
     return Promise.resolve();
