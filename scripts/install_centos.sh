@@ -7,6 +7,9 @@
 curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
 yum -y install nodejs
 
+#instal pm2
+npm i -g pm2
+
 # install nginx if needed
 echo "[nginx]
 name=nginx repo
