@@ -5,7 +5,7 @@ const rimraf = require('rimraf');
 
 const FINAL_DIR = `${__dirname}/packages`;
 const TEMP_DIR = `${__dirname}/temp`;
-const PACKAGE_NAME = `tellor-${getNextPackageVersion()}`;
+const PACKAGE_NAME = `tellor-${process.argv[2] || getNextPackageVersion()}`;
 const API_PROJECT = 'tellor-web-server';
 const UI_PROJECT = 'tellor-ui';
 
