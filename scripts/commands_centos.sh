@@ -5,6 +5,12 @@ function tellor_restart() {
 }
 
 function tellor_update() {
+
+    if [[ $EUID -ne 0 ]]; then
+        echo "You must run this with root" ;
+        exit 1;
+    fi
+
     if [ hash git 2>/dev/null ]; then
         yum -y install git;
     fi
@@ -22,11 +28,19 @@ function tellor_update() {
 
     if [ "$NEWEST_VERSION" -gt "$CURRENT_VERSION" ]; then
         echo "install new!";
+
+        sudo ./tellor-${NEWEST_VERSION}.sh
     else
         echo "You have most recent version";
     fi
 
     rm -rf /opt/tellor/temp;
+}
+
+tellor_rollback() {
+    VERSION = $1 || "$(cd /opt/tellor && ls | grep tellor | tail -1 | tr -d -c 0-9)";
+
+    echo "rollbacking to ${VERSION}";
 }
 
 COMMAND=$1
