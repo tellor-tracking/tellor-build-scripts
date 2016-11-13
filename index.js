@@ -23,6 +23,7 @@ function installPackages(dirName, prodOnly = true) {
 
 function getNextPackageVersion() {
     return fs.readdirSync(FINAL_DIR).reduce((version, fileName) => {
+        if (fileName.indexOf('tellor') === -1) return version;
         const v = parseFloat(fileName.split('-')[1])
         return version > v ? version : v;
     }, 0) + 1;
