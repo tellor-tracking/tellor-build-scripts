@@ -11,9 +11,7 @@ function tellor_update() {
         exit 1;
     fi
 
-    if [ hash git 2>/dev/null ]; then
-        yum -y install git;
-    fi
+    hash git 2>/dev/null || { yum -y install git; } # install git if doesn't exist
 
     cd /opt/tellor
     CURRENT_VERSION="$( ls | grep tellor | sort -V | tail -1 | tr -d -c 0-9)";
