@@ -23,8 +23,6 @@ yum -y install nginx
 cp $CURRENT_DIR/configs/nginx.server.conf /etc/nginx/conf.d/default.conf
 cp $CURRENT_DIR/configs/nginx.conf /etc/nginx/nginx.conf
 
-#TODO
-
 #start nginx
 systemctl restart nginx
 
@@ -45,6 +43,11 @@ sudo yum -y install mongodb-org
 
 # start mongo
 systemctl restart mongod
+
+# copy tellor commands
+cp $CURRENT_DIR/commands_centos.sh /usr/bin/tellor
+sudo chmod +x /usr/bin/tellor
+
 
 # start server
 pm2 delete tellor; cd $TARGET_DIR/$FILE_NAME && pm2 start pm2.config.js # TODO look if it can be executed with telllor user

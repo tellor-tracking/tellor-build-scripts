@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [[ $EUID -ne 0 ]]; then
+    echo "You must run this with root" ;
+    exit 1;
+fi
+
 echo  "Starting setup";
 
 CURRENT_DIR="$( pwd )"

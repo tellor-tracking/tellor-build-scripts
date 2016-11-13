@@ -20,16 +20,15 @@ function tellor_update() {
 
     mkdir -p /opt/tellor/temp
     git clone "https://github.com/tellor-tracking/tellor-build-scripts.git" /opt/tellor/temp;
-    cd /opt/tellor/temp/packages;
-    NEWEST_VERSION="$( ls | grep tellor | tail -1 | tr -d -c 0-9)";
+    NEWEST_VERSION="$( ls /opt/tellor/temp/packages | grep tellor | tail -1 | tr -d -c 0-9)"; # matches just number so 11.1 > 111
 
     echo "Current ${CURRENT_VERSION}";
     echo "Newest ${NEWEST_VERSION}";
 
     if [ "$NEWEST_VERSION" -gt "$CURRENT_VERSION" ]; then
         echo "install new!";
-
-        sudo ./tellor-${NEWEST_VERSION}.sh
+        VERSION_FULL="$( ls /opt/tellor/temp/packages | grep tellor | tail -1 | tr -d -c 0-9.)" # matches version like 11.1.
+        sudo /opt/tellor/temp/packages/tellor-${VERSION_FULL}sh
     else
         echo "You have most recent version";
     fi
@@ -38,9 +37,15 @@ function tellor_update() {
 }
 
 tellor_rollback() {
-    VERSION = $1 || "$(cd /opt/tellor && ls | grep tellor | tail -1 | tr -d -c 0-9)";
+    
 
-    echo "rollbacking to ${VERSION}";
+    if [ -z "$1" ]; then
+        VERSION="$(ls /opt/tellor | grep tellor | tail -1 | tr -d -c 0-9.)";
+    else 
+        VERSION=$1;
+    fi
+        
+    echo "rollbacking to version $VERSION";
 }
 
 COMMAND=$1
