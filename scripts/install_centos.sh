@@ -47,4 +47,4 @@ sudo yum -y install mongodb-org
 systemctl restart mongod
 
 # start server
-pm2 delete tellor; cd $TARGET_DIR/$FILE_NAME && pm2 start pm2.config.js
+pm2 delete tellor; cd $TARGET_DIR/$FILE_NAME && pm2 start pm2.config.js # TODO look if it can be executed with telllor user
