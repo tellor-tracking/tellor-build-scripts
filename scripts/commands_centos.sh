@@ -47,7 +47,7 @@ tellor_rollback() {
     fi
         
     echo "rollbacking to version $VERSION";
-    su - tellor -c '/opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 stop tellor; /opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 delete tellor; /opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 start /opt/tellor/tellor-${VERSION}/pm2.config.js'
+    su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 stop tellor; $P/node_modules/pm2/bin/pm2 delete tellor; $P/node_modules/pm2/bin/pm2 start $P/pm2.config.js'
 
 }
 

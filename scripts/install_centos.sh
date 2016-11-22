@@ -48,4 +48,4 @@ sudo chmod +x /usr/bin/tellor
 
 
 # start server
-su - tellor -c '$TARGET_DIR/$FILE_NAME/node_modules/pm2/bin/pm2 delete tellor; $TARGET_DIR/$FILE_NAME/node_modules/pm2/bin/pm2 start $TARGET_DIR/$FILE_NAME/pm2.config.js'
+su - tellor -c 'P='$TARGET_DIR/$FILE_NAME'; $P/node_modules/pm2/bin/pm2 delete tellor; $P/node_modules/pm2/bin/pm2 start $P/pm2.config.js'
