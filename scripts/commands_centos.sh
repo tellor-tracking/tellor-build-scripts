@@ -5,6 +5,12 @@ if [[ $EUID -ne 0 ]]; then
     exit 1;
 fi
 
+function tellor_stop() {
+
+    VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
+    su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 stop tellor;'
+}
+
 function tellor_restart() {
 
     VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
@@ -55,7 +61,13 @@ tellor_dbpath() {
 
     DATAPATH=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g');    
 
+    sudo tellor stop;
+    systemctl stop mongod;
+
     sed -i -e 's/dbPath:.*/dbPath: '$DATAPATH'/g' /etc/mongod.conf;
+    cp -ca /var/lib/mongo/* $1;
+    chown mongod:mongod $1;
+    
     systemctl restart mongod;
     sudo tellor restart;
     echo "path $DATAPATH set";
