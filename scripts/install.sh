@@ -21,7 +21,7 @@ fi
 mkdir -p $TARGET_DIR/ && mv $CURRENT_DIR/$FILE_NAME $TARGET_DIR/
 
 # create user
-useradd -r -U -M -d $TARGET_DIR  -s /bin/false tellor
+useradd -U -d $TARGET_DIR tellor
 
 # ensure logs dir with correct user
 mkdir -p $LOGS_DIR

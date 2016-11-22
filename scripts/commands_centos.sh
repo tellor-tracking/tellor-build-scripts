@@ -35,6 +35,11 @@ function tellor_update() {
 }
 
 tellor_rollback() {
+
+    if [[ $EUID -ne 0 ]]; then
+        echo "You must run this with root" ;
+        exit 1;
+    fi
     
     VERSION=$1;
     if [ -z "$1" ]; then
@@ -42,7 +47,8 @@ tellor_rollback() {
     fi
         
     echo "rollbacking to version $VERSION";
-    pm2 stop tellor; pm2 delete tellor; pm2 start /opt/tellor/tellor-${VERSION}/pm2.config.js;
+    su - tellor -c '/opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 stop tellor; /opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 delete tellor; /opt/tellor/tellor-${VERSION}/node_modules/pm2/bin/pm2 start /opt/tellor/tellor-${VERSION}/pm2.config.js'
+
 }
 
 COMMAND=$1

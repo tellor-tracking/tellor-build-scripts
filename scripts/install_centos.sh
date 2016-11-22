@@ -8,9 +8,6 @@ curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
 
 hash node 2>/dev/null || { yum -y install nodejs; }
 
-#instal pm2
-npm i -g pm2
-
 # install nginx if needed
 echo "[nginx]
 name=nginx repo
@@ -51,4 +48,4 @@ sudo chmod +x /usr/bin/tellor
 
 
 # start server
-pm2 delete tellor; cd $TARGET_DIR/$FILE_NAME && pm2 start pm2.config.js # TODO look if it can be executed with telllor user
+su - tellor -c '$TARGET_DIR/$FILE_NAME/node_modules/pm2/bin/pm2 delete tellor; $TARGET_DIR/$FILE_NAME/node_modules/pm2/bin/pm2 start $TARGET_DIR/$FILE_NAME/pm2.config.js'
