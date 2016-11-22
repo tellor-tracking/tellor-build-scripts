@@ -8,7 +8,7 @@ fi
 function tellor_restart() {
 
     VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
-    su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 stop tellor; $P/node_modules/pm2/bin/pm2 delete tellor; $P/node_modules/pm2/bin/pm2 start $P/pm2.config.js';
+    su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 restart tellor;'
 }
 
 function tellor_update() {
@@ -48,7 +48,7 @@ tellor_rollback() {
 }
 
 tellor_dbpath() {
-    
+
     if [ -z "$1" ]; then
         echo "You must provide absolute path"; exit 1;
     fi
@@ -56,6 +56,9 @@ tellor_dbpath() {
     DATAPATH=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g');    
 
     sed -i -e 's/dbPath:.*/dbPath: '$DATAPATH'/g' /etc/mongod.conf;
+    systemctl restart mongod;
+    sudo tellor restart;
+    echo "path $DATAPATH set";
 }
 
 COMMAND=$1
