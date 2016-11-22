@@ -6,6 +6,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function tellor_restart() {
+
     VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
     su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 stop tellor; $P/node_modules/pm2/bin/pm2 delete tellor; $P/node_modules/pm2/bin/pm2 start $P/pm2.config.js';
 }
@@ -47,6 +48,7 @@ tellor_rollback() {
 }
 
 tellor_dbpath() {
+    
     if [ -z "$1" ]; then
         echo "You must provide absolute path"; exit 1;
     fi
