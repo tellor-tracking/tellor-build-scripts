@@ -49,3 +49,6 @@ sudo chmod +x /usr/bin/tellor
 
 # start server
 su - tellor -c 'P='$TARGET_DIR/$FILE_NAME'; $P/node_modules/pm2/bin/pm2 delete tellor; $P/node_modules/pm2/bin/pm2 start $P/pm2.config.js'
+
+echo "You are now running $FILE_NAME"
+echo "If this is first time you installed tellor, you might want to setup databse file path, run 'sudo tellor' for more info"
