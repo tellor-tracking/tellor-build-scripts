@@ -59,18 +59,20 @@ tellor_dbpath() {
         echo "You must provide absolute path"; exit 1;
     fi
 
-    DATAPATH=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g');    
+    OLD_DATA_PATH=$( echo $( cat /etc/mongod.conf | grep 'dbPath:.*') | sed 's/dbPath://' );;
+    NEW_DATA_PATH=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'); 
 
     sudo tellor stop;
     systemctl stop mongod;
 
-    sed -i -e 's/dbPath:.*/dbPath: '$DATAPATH'/g' /etc/mongod.conf;
-    cp -ca /var/lib/mongo/* $1;
-    chown mongod:mongod $1;
+    sed -i -e 's/dbPath:.*/dbPath: '$NEW_DATA_PATH'/g' /etc/mongod.conf;
     
+    cp -ca $OLD_DATA_PATH/* $1;
+    chown mongod:mongod $1;
+
     systemctl restart mongod;
     sudo tellor restart;
-    echo "path $DATAPATH set";
+    echo "path $NEW_DATA_PATH set";
 }
 
 COMMAND=$1
