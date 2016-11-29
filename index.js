@@ -88,6 +88,17 @@ function createMakeselfFile() {
         'Successfully created makeself.sh');
 }
 
+function createVersionsFile() {
+    return new Promise((resolve, reject) => {
+        console.log('Creating versions file');
+        const versions = fs.readdirSync(FINAL_DIR)
+        .filter(fileName => fileName.indexOf('tellor') !== -1)
+        .sort((prev, next) => parseFloat(next.replace(/[^\d.]/g, '')) - parseFloat(prev.replace(/[^\d.]/g, '')));
+
+        fs.writeFile(`${__dirname}/VERSIONS`, versions.join('\n'), err => err ? reject(err) : resolve());
+    });
+}
+
 function cleanup() {
     rimraf(TEMP_DIR, (r) => console.log('Cleanup done'));
 }
@@ -107,6 +118,7 @@ function shellExec(command, successMsg = null) {
     });
 }
 
+createVersionsFile();
 
 Promise.all([cloneRepo(API_PROJECT), cloneRepo(UI_PROJECT), cloneRepo(WEB_SDK_PROJECT)])
     .then(() => Promise.all([
@@ -123,6 +135,7 @@ Promise.all([cloneRepo(API_PROJECT), cloneRepo(UI_PROJECT), cloneRepo(WEB_SDK_PR
     .then(copyConfigsIntoTempDir)
     .then(renameApiDir)
     .then(createMakeselfFile)
+    .then(createVersionsFile)
     .catch(e => console.error(e))
     .then(cleanup);
 

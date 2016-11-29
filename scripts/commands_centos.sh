@@ -93,6 +93,7 @@ if [ "$(type -t tellor_$COMMAND)" = function ]; then
 else
     echo "Tellor available commands:";
     echo "    tellor update  # check if there is new version available and updates tellor if there is"
+    echo "    tellor rollback [version]  # rollback to last or specified version"
     echo "    tellor dbpath  # sets data storage path for mongodb"       
     echo "    tellor restart # restarts tellor server"        
     echo "    tellor stop # stops tellor server"        
