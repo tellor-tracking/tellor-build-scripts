@@ -1,4 +1,3 @@
-const gulp = require('gulp');
 const shelljs = require('shelljs');
 const fs = require('fs');
 const rimraf = require('rimraf');
@@ -8,15 +7,17 @@ const TEMP_DIR = `${__dirname}/temp`;
 const PACKAGE_NAME = `tellor-${process.argv[2] || getNextPackageVersion()}`;
 const API_PROJECT = 'tellor-web-server';
 const UI_PROJECT = 'tellor-ui';
+const WEB_SDK_PROJECT = 'tellor-web-sdk';
 
-const getGitRepoAddr = (name) => `https://github.com/tellor-tracking/${name}.git`
 
-function cloneRepo(repoUrl, dirName = '') {
+function cloneRepo(projectName) {
+    const repoUrl = `https://github.com/tellor-tracking/${projectName}.git`;
+    const dirName = projectName;
     console.log(`Cloning ${repoUrl}`);
     return shellExec(`git clone ${repoUrl} ${TEMP_DIR}/${dirName}`, `Successfully cloned ${repoUrl} into ${dirName}`);
 }
 
-function installPackages(dirName, prodOnly = true) {
+function installPackages(dirName, prodOnly = false) {
     console.log(`Installing packages in  ${dirName}`);
     return shellExec(`(cd ${TEMP_DIR}/${dirName} ; yarn install ${prodOnly ? '--production' : ''})`, `Successfully installed packages in ${dirName}`);
 }
@@ -31,19 +32,37 @@ function getNextPackageVersion() {
 
 function buildUI() {
     console.log('Building UI');
-    return shellExec(`(cd ${TEMP_DIR}/${UI_PROJECT} ; yarn run build-dist)`, `Successfully buil ${UI_PROJECT}`);
+    return shellExec(`(cd ${TEMP_DIR}/${UI_PROJECT}; yarn run build-dist)`, `Successfully build ${UI_PROJECT}`);
 }
 
 function moveUIDistFilesIntoServerDir() {
     shelljs.mkdir('-p', `${TEMP_DIR}/${API_PROJECT}/public/react`);
     shelljs.mv(`${TEMP_DIR}/${UI_PROJECT}/dist/*`, `${TEMP_DIR}/${API_PROJECT}/public/react/`);
-    shelljs.rm('-rf',`${TEMP_DIR}/${UI_PROJECT}`);
+    shelljs.rm('-rf', `${TEMP_DIR}/${UI_PROJECT}`);
     console.log('Copied UI static files into API');
     return Promise.resolve();
 }
 
+function buildWebSdk() {
+    console.log('Building Web Sdk');
+    return shellExec(`(cd ${TEMP_DIR}/${WEB_SDK_PROJECT}; yarn run build)`, `Successfully build ${WEB_SDK_PROJECT}`);
+}
+
+function moveWebSdkDistFilesIntoServerDir() {
+    shelljs.mv(`${TEMP_DIR}/${WEB_SDK_PROJECT}/dist/*`, `${TEMP_DIR}/${API_PROJECT}/public/`);
+    shelljs.rm('-rf', `${TEMP_DIR}/${WEB_SDK_PROJECT}`);
+    console.log('Copied Web Sdk static files into API');
+    return Promise.resolve();
+}
+
+function runApiTests() {
+    console.log('Running Api tests');
+    return shellExec(`(cd ${TEMP_DIR}/${API_PROJECT}; yarn run test)`, 'Successfully passed Api tests');
+}
+
+
 function renameApiDir() {
-    shelljs.mv(`${TEMP_DIR}/${API_PROJECT}`, `${TEMP_DIR}/${PACKAGE_NAME}`);    
+    shelljs.mv(`${TEMP_DIR}/${API_PROJECT}`, `${TEMP_DIR}/${PACKAGE_NAME}`);
 }
 
 function copyInstallScriptsIntoTempDir() {
@@ -54,7 +73,7 @@ function copyInstallScriptsIntoTempDir() {
 }
 
 function copyConfigsIntoTempDir() {
-    shelljs.mkdir('-p', `${TEMP_DIR}/configs`);    
+    shelljs.mkdir('-p', `${TEMP_DIR}/configs`);
     shelljs.cp(`${__dirname}/configs/*`, `${TEMP_DIR}/configs/`);
     console.log('Copied configs');
     return Promise.resolve();
@@ -89,10 +108,17 @@ function shellExec(command, successMsg = null) {
 }
 
 
-Promise.all([cloneRepo(getGitRepoAddr(API_PROJECT), API_PROJECT), cloneRepo(getGitRepoAddr(UI_PROJECT), UI_PROJECT)])
-    .then(() => Promise.all([installPackages(API_PROJECT), installPackages(UI_PROJECT, false)]))
+Promise.all([cloneRepo(API_PROJECT), cloneRepo(UI_PROJECT), cloneRepo(WEB_SDK_PROJECT)])
+    .then(() => Promise.all([
+        installPackages(API_PROJECT),
+        installPackages(UI_PROJECT),
+        installPackages(WEB_SDK_PROJECT)
+    ]))
+    .then(runApiTests)
     .then(buildUI)
     .then(moveUIDistFilesIntoServerDir)
+    .then(buildWebSdk)
+    .then(moveWebSdkDistFilesIntoServerDir)
     .then(copyInstallScriptsIntoTempDir)
     .then(copyConfigsIntoTempDir)
     .then(renameApiDir)
