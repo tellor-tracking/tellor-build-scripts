@@ -35,16 +35,17 @@ function tellor_update() {
     CURRENT_VERSION="$( ls | grep tellor | sort -V | tail -1 | tr -d -c 0-9)";
 
     mkdir -p /opt/tellor/temp
-    git clone "https://github.com/tellor-tracking/tellor-build-scripts.git" /opt/tellor/temp;
-    NEWEST_VERSION="$( ls /opt/tellor/temp/packages | grep tellor | sort -V | tail -1 | tr -d -c 0-9)"; # matches just number so 11.1 > 111
+    
+    NEWEST_PACKAGE=$(curl https://raw.githubusercontent.com/tellor-tracking/tellor-build-scripts/master/VERSIONS | grep tellor | head -1)
+    NEWEST_VERSION="$( echo $NEWEST_PACKAGE | tr -d -c 0-9)"; # matches just number so 11.1 > 111
 
     echo "Current ${CURRENT_VERSION}";
     echo "Newest ${NEWEST_VERSION}";
 
     if [ "$NEWEST_VERSION" -gt "$CURRENT_VERSION" ]; then
         echo "install new!";
-        VERSION_FULL="$( ls /opt/tellor/temp/packages | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.
-        sudo /opt/tellor/temp/packages/tellor-${VERSION_FULL}sh
+        wget -P /opt/tellor/temp https://raw.githubusercontent.com/tellor-tracking/tellor-build-scripts/master/packages/$NEWEST_PACKAGE
+        sudo sh /opt/tellor/temp/$NEWEST_PACKAGE
     else
         echo "You have most recent version";
     fi
