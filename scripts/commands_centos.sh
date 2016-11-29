@@ -5,15 +5,25 @@ if [[ $EUID -ne 0 ]]; then
     exit 1;
 fi
 
+function getVersion() {
+    echo "$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)" # matches version like 11.1.    
+}
+
+function tellor_status() {
+
+    VERSION=$(getVersion); 
+    su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 ls;'
+}
+
 function tellor_stop() {
 
-    VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
+    VERSION=$(getVersion); 
     su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 stop tellor;'
 }
 
 function tellor_restart() {
 
-    VERSION="$( ls /opt/tellor | grep tellor | sort -V | tail -1 | tr -d -c 0-9.)"; # matches version like 11.1.    
+    VERSION=$(getVersion); 
     su - tellor -c 'P=/opt/tellor/tellor-'$VERSION'; $P/node_modules/pm2/bin/pm2 restart tellor;'
 }
 
@@ -83,6 +93,8 @@ if [ "$(type -t tellor_$COMMAND)" = function ]; then
 else
     echo "Tellor available commands:";
     echo "    tellor update  # check if there is new version available and updates tellor if there is"
+    echo "    tellor dbpath  # sets data storage path for mongodb"       
     echo "    tellor restart # restarts tellor server"        
-    echo "    tellor dbpath  # sets data storage path for mongodb"        
+    echo "    tellor stop # stops tellor server"        
+    echo "    tellor status # tellor server status info"        
 fi
